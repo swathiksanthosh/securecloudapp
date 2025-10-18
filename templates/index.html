@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Cloud Prototype</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">SecureCloud</a>
+  </div>
+</nav>
+
+<div class="container my-4">
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-info">
+        <ul class="mb-0">
+          {% for m in messages %}
+            <li>{{ m }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="row">
+
+    <!-- Encrypt Section -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Encrypt & Hide Key</h5>
+          <form method="post" enctype="multipart/form-data" action="{{ url_for('encrypt') }}">
+            <div class="mb-3">
+              <label>File to encrypt</label>
+              <input type="file" class="form-control" name="file" required>
+            </div>
+            <div class="mb-3">
+              <label>Algorithm</label>
+              <select class="form-select" name="algorithm">
+                <option>AES</option>
+                <option>DES</option>
+                <option>RC6</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label>Cover image (PNG recommended)</label>
+              <input type="file" class="form-control" name="cover_image" required>
+            </div>
+            <div class="mb-3">
+              <label>Expiry in minutes</label>
+              <input type="number" class="form-control" name="expiry" value="60" min="1">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Encrypt & Hide Key</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decrypt Section -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Decrypt</h5>
+          <form method="post" enctype="multipart/form-data" action="{{ url_for('decrypt') }}">
+            <div class="mb-3">
+              <label>Encrypted file</label>
+              <input type="file" class="form-control" name="file" required>
+            </div>
+            <div class="mb-3">
+              <label>Key image (PNG)</label>
+              <input type="file" class="form-control" name="key_image" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Decrypt</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
