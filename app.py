@@ -5,6 +5,8 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import json
 import binascii
+from cloud_upload import upload_to_drive
+
 
 from encrypt_decrypt import encrypt_data, decrypt_data
 from steganography import encode_text_into_image, decode_text_from_image
@@ -118,14 +120,26 @@ def encrypt():
     metadata_str = json.dumps(metadata)
 
     # hide metadata in cover image -> output file
+    # hide metadata in cover image -> output file
     out_key_image = os.path.join(KEY_IMAGES, f"key_{fname}.png")
     encode_text_into_image(cover_path, out_key_image, metadata_str)
+
+# Upload files to Google Drive
+    try:
+        cloud_link1 = upload_to_drive(enc_path)
+        cloud_link2 = upload_to_drive(out_key_image)
+
+        flash(f"Encrypted file uploaded to Google Drive: {cloud_link1}")
+        flash(f"Key image uploaded to Google Drive: {cloud_link2}")
+    except Exception as e:
+        flash(f"Failed to upload to cloud: {e}")
 
     flash(f"Encrypted file: {enc_name}")
     flash(f"Key image created: {os.path.basename(out_key_image)} (contains key + expiry)")
     flash("Download the encrypted file and the key image. Use the key image to decrypt before expiry.")
 
     return redirect(url_for('index'))
+
 
 @app.route('/decrypt', methods=['POST'])
 def decrypt():
@@ -145,6 +159,12 @@ def decrypt():
 
     try:
         metadata_str = decode_text_from_image(key_img_path)
+        metadata_str = metadata_str.strip()
+
+        if not metadata_str or not metadata_str.startswith('{'):
+            flash("Invalid key image. Please upload the correct key_<filename>.png (must be the generated PNG)")
+            return redirect(url_for('index'))
+
         metadata = json.loads(metadata_str)
     except Exception as e:
         flash(f"Failed to extract metadata from key image: {e}")
